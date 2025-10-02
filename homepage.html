@@ -309,7 +309,7 @@
             });
         }
 
-        function handleAnswer(selectedAnswer, buttonElement) {
+       function handleAnswer(selectedAnswer, buttonElement) {
             const q = questionsData[currentQuestionIndex];
             
             const correctAnswer = Obfuscator.decode(q.answer);
@@ -371,10 +371,12 @@
             const statusElement = document.getElementById('submission-status');
             statusElement.textContent = "Đang gửi kết quả về Google Form...";
 
+            const finalDetailLog = `Tên người chơi: ${userName}\n` + detailResults;
+
             const formData = new URLSearchParams();
             formData.append(ENTRY_NAME_ID, userName);
             formData.append(ENTRY_SCORE_ID, `${score}/${totalQuestions} (Tự luận chưa chấm)`); 
-            formData.append(ENTRY_DETAIL_ID, detailResults); 
+            formData.append(ENTRY_DETAIL_ID, finalDetailLog); 
 
             fetch(GOOGLE_FORM_ACTION_URL, {
                 method: 'POST',
