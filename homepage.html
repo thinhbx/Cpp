@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài tập về nhà</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: 'Inter', Tahoma, Arial, sans-serif; 
+            background-color: #2c3e50; 
+            color: white; 
+        }
+        .quiz-container { max-width: 800px; height: 100vh; }
+        .hidden { display: none; }
+
+        .answer-btn {
+            width: 100%;
+            height: 6rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            transition: all 0.15s ease-in-out;
+            transform: scale(1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        .answer-btn:hover:not(:disabled) {
+            transform: scale(1.03);
+        }
+
+        .bg-red-600 { background-color: #d90000; }
+        .bg-blue-600 { background-color: #1e3a8a; }
+        .bg-yellow-600 { background-color: #ca8a04; }
+        .bg-green-600 { background-color: #16a34a; }
+        
+        @keyframes correct-flash {
+            0% { background-color: #10b981; }
+            100% { background-color: #16a34a; }
+        }
+        @keyframes incorrect-flash {
+            0% { background-color: #f87171; }
+            100% { background-color: #d90000; }
+        }
+        .flash-correct { animation: correct-flash 0.5s ease-in-out; }
+        .flash-incorrect { animation: incorrect-flash 0.5s ease-in-out; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#4f46e5',
+                        'secondary': '#f97316',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 md:p-8 flex justify-center items-center">
+    <div class="quiz-container w-full flex flex-col items-center justify-between">
+
+        <div class="w-full text-center py-4">
+            <h1 class="text-3xl font-extrabold text-white">Bài tập về nhà</h1>
+            <p id="question-counter" class="text-gray-400 mt-1"></p>
+        </div>
+
+        <div id="start-screen" class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl text-gray-800 text-center">
+            <h2 class="text-2xl font-bold text-primary mb-4">Chào mừng bạn!</h2>
+            <p class="mb-6">Sẵn sàng thử thách kiến thức C++ về Toán tử và If-Else chưa?</p>
+            <input type="text" id="user-name" required placeholder="Nhập tên của bạn"
+                   class="w-full px-4 py-3 mb-4 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150 text-base">
+            <button onclick="startQuiz()"
+                    class="w-full bg-secondary text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition duration-300 shadow-lg">
+                Bắt Đầu Quiz
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden w-full flex-grow flex flex-col justify-between items-center">
+            
+            <div id="question-box" class="w-full p-8 md:p-12 bg-gray-800 rounded-xl shadow-2xl flex items-center justify-center text-center mb-6 h-[40%]">
+                <p id="question-text" class="text-3xl md:text-4xl font-extrabold"></p>
+            </div>
+
+            <div id="answer-grid" class="grid grid-cols-2 gap-4 w-full h-[50%]">
+                <button id="btn-a" onclick="handleAnswer('a', this)" class="answer-btn bg-red-600 hover:bg-red-700">
+                    A. <span class="ml-2" id="option-a"></span>
+                </button>
+                <button id="btn-b" onclick="handleAnswer('b', this)" class="answer-btn bg-blue-600 hover:bg-blue-700">
+                    B. <span class="ml-2" id="option-b"></span>
+                </button>
+                <button id="btn-c" onclick="handleAnswer('c', this)" class="answer-btn bg-yellow-600 hover:bg-yellow-700">
+                    C. <span class="ml-2" id="option-c"></span>
+                </button>
+                <button id="btn-d" onclick="handleAnswer('d', this)" class="answer-btn bg-green-600 hover:bg-green-700">
+                    D. <span class="ml-2" id="option-d"></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden w-full max-w-md bg-white p-8 rounded-xl shadow-2xl text-gray-800 text-center mb-8">
+            <h2 class="text-4xl font-bold text-green-600 mb-4">Kết Quả Cuối Cùng!</h2>
+            <p class="text-xl text-gray-700 mb-6">
+                Bạn đã hoàn thành bài kiểm tra, <span id="final-name" class="font-bold text-primary"></span>!
+            </p>
+            <p class="text-2xl text-gray-900 mb-4">
+                Điểm số: 
+                <span id="final-score" class="font-extrabold text-5xl text-secondary">0</span> 
+                / 
+                <span id="final-total" class="font-extrabold text-3xl text-primary">0</span>
+            </p>
+            <p id="submission-status" class="text-sm text-gray-500 mt-4">
+                Kết quả đang được gửi...
+            </p>
+            <button onclick="window.location.reload()" 
+                    class="mt-6 bg-primary text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-600 transition duration-300 shadow-md">
+                Chơi Lại
+            </button>
+        </div>
+        
+        <div class="h-4"></div>
+    </div>
+
+    <script>
+        
+        const GOOGLE_FORM_ACTION_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScZzlTy6DSR46Na7t8D2vVVAxpq3UwJktxm1ZtX_lyi4_gG2g/formResponse'; 
+        const ENTRY_NAME_ID = 'entry.499843838';
+        const ENTRY_SCORE_ID = 'entry.1075353871';
+        const ENTRY_DETAIL_ID = 'entry.591212870';
+        
+        const ENCRYPTION_KEY = 64; 
+
+        class Obfuscator {
+            static decode(encodedStr) {
+                let decoded = '';
+                for (let i = 0; i < encodedStr.length; i++) {
+                    decoded += String.fromCharCode(encodedStr.charCodeAt(i) ^ ENCRYPTION_KEY);
+                }
+                return decoded;
+            }
+        }
+
+        const questionsData = [
+            {
+                id: 1,
+                text: "Trong C++, kết quả của biểu thức `10 / 3` là gì nếu cả hai là số nguyên (`int`)?",
+                options: {
+                    a: "3.333...",
+                    b: "3",
+                    c: "4",
+                    d: "Lỗi biên dịch"
+                },
+                answer: "\x22",
+            },
+            {
+                id: 2,
+                text: "Toán tử nào được dùng để kiểm tra tính bằng nhau của hai giá trị trong C++?",
+                options: {
+                    a: "=",
+                    b: "==",
+                    c: "!=",
+                    d: "==="
+                },
+                answer: "\x22",
+            },
+            {
+                id: 3,
+                text: "Đoạn mã sau in ra gì? `int a = 5; int b = 3; if (a > 3 && b < 5) { cout << \"YES\"; } else { cout << \"NO\"; }`",
+                options: {
+                    a: "YES",
+                    b: "NO",
+                    c: "Lỗi cú pháp",
+                    d: "In ra giá trị của a và b"
+                },
+                answer: "\x21",
+            },
+            {
+                id: 4,
+                text: "Đâu là cú pháp đúng của câu lệnh `if` trong C++?",
+                options: {
+                    a: "if (x > 0) {}",
+                    b: "if x > 0 {}",
+                    c: "if x > 0 then {}",
+                    d: "if {x > 0}"
+                },
+                answer: "\x21",
+            },
+            {
+                id: 5,
+                text: "Toán tử nào được sử dụng để tăng giá trị của một biến lên 1?",
+                options: {
+                    a: "-=",
+                    b: "++",
+                    c: "%",
+                    d: "||"
+                },
+                answer: "\x22",
+            },
+            {
+                id: 6,
+                text: "Kết quả của biểu thức `17 % 5` (toán tử modulo) là gì?",
+                options: {
+                    a: "3",
+                    b: "2",
+                    c: "3.4",
+                    d: "17/5"
+                },
+                answer: "\x22",
+            },
+            {
+                id: 7,
+                text: "Đoạn code sau in ra gì? `int x = 7; if (x < 5 || x > 10) { cout << \"A\"; } else { cout << \"B\"; }`",
+                options: {
+                    a: "A",
+                    b: "B",
+                    c: "Cả A và B",
+                    d: "Không in ra gì"
+                },
+                answer: "\x22",
+            },
+            {
+                id: 8,
+                text: "Toán tử gán kết hợp nào tương đương với `y = y - 4;`?",
+                options: {
+                    a: "y -= 4;",
+                    b: "y /= 4;",
+                    c: "y %= 4;",
+                    d: "y =- 4;"
+                },
+                answer: "\x21",
+            },
+            {
+                id: 9,
+                text: "Kết quả của biểu thức logic `!(true && false)` là gì?",
+                options: {
+                    a: "true",
+                    b: "false",
+                    c: "0",
+                    d: "1"
+                },
+                answer: "\x21",
+            },
+            {
+                id: 10,
+                text: "Đoạn code sau in ra gì? `int val = 10; if (val >= 10) { cout << \"X\"; } else if (val == 10) { cout << \"Y\"; }`",
+                options: {
+                    a: "X",
+                    b: "Y",
+                    c: "XY",
+                    d: "Lỗi"
+                },
+                answer: "\x21",
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userName = '';
+        let detailResults = '';
+        const totalQuestions = questionsData.length;
+        const NEXT_QUESTION_DELAY = 800;
+
+        function switchScreen(showId, hideIds) {
+            document.getElementById(showId).classList.remove('hidden');
+            hideIds.forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('user-name');
+            userName = nameInput.value.trim();
+
+            if (!userName) {
+                nameInput.classList.add('border-red-500', 'ring-red-500', 'placeholder-red-400');
+                nameInput.placeholder = "Tên không được để trống!";
+                setTimeout(() => {
+                    nameInput.classList.remove('border-red-500', 'ring-red-500', 'placeholder-red-400');
+                    nameInput.placeholder = "Nhập tên của bạn";
+                }, 2000);
+                return;
+            }
+
+            switchScreen('quiz-screen', ['start-screen', 'result-screen']);
+            displayQuestion(currentQuestionIndex);
+        }
+
+        function displayQuestion(index) {
+            if (index >= totalQuestions) {
+                finishQuiz();
+                return;
+            }
+
+            const q = questionsData[index];
+
+            document.getElementById('question-counter').textContent = `Câu hỏi ${index + 1} / ${totalQuestions}`;
+            document.getElementById('question-text').textContent = q.text;
+
+            document.getElementById('option-a').textContent = q.options.a;
+            document.getElementById('option-b').textContent = q.options.b;
+            document.getElementById('option-c').textContent = q.options.c;
+            
+            const btnD = document.getElementById('btn-d');
+            if (q.options.d) {
+                document.getElementById('option-d').textContent = q.options.d;
+                btnD.style.display = 'flex';
+            } else {
+                btnD.style.display = 'none';
+            }
+
+            const buttons = document.querySelectorAll('#answer-grid button');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('flash-correct', 'flash-incorrect');
+            });
+        }
+
+        function handleAnswer(selectedAnswer, buttonElement) {
+            const q = questionsData[currentQuestionIndex];
+            
+            const correctAnswer = Obfuscator.decode(q.answer);
+            const isCorrect = (selectedAnswer === correctAnswer);
+            const statusText = isCorrect ? 'ĐÚNG' : 'SAI';
+            const selectedText = q.options[selectedAnswer];
+            
+            const buttons = document.querySelectorAll('#answer-grid button');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (isCorrect) {
+                score++;
+                buttonElement.classList.add('flash-correct');
+            } else {
+                buttonElement.classList.add('flash-incorrect');
+                
+                const correctButton = document.getElementById(`btn-${correctAnswer}`);
+                if (correctButton) {
+                    correctButton.classList.add('flash-correct');
+                } else {
+                    console.error("Lỗi nội bộ: Không tìm thấy nút đáp án đúng. Đáp án được giải mã:", correctAnswer);
+                }
+            }
+            
+            detailResults += `Q${q.id} | Trạng thái: ${statusText} | Chọn: ${selectedAnswer.toUpperCase()} - ${selectedText} | Đáp án ĐÚNG: ${correctAnswer.toUpperCase()} - ${q.options[correctAnswer]}\n`;
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            }, NEXT_QUESTION_DELAY);
+        }
+
+        function finishQuiz() {
+            switchScreen('result-screen', ['start-screen', 'quiz-screen']);
+
+            document.getElementById('final-name').textContent = userName;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-total').textContent = totalQuestions;
+            
+            const statusElement = document.getElementById('submission-status');
+            statusElement.textContent = "Đang gửi kết quả về Google Form...";
+
+            const formData = new URLSearchParams();
+            formData.append(ENTRY_NAME_ID, userName);
+            formData.append(ENTRY_SCORE_ID, `${score}/${totalQuestions}`); 
+            formData.append(ENTRY_DETAIL_ID, detailResults); 
+
+            fetch(GOOGLE_FORM_ACTION_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: formData
+            })
+            .then(() => {
+                console.log('Dữ liệu đã được gửi thành công đến Google Form.');
+                statusElement.textContent = "Kết quả đã được ghi lại thành công!";
+                statusElement.classList.add('text-green-600');
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi dữ liệu:', error);
+                statusElement.textContent = "Gửi kết quả thất bại. Vui lòng thử lại.";
+                statusElement.classList.add('text-red-600');
+            });
+        }
+        
+        window.startQuiz = startQuiz;
+        window.handleAnswer = handleAnswer;
+
+    </script>
+</body>
+</html>
