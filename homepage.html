@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài tập về nhà</title>
+    <title>Bài tập về nhà buổi 03)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -87,6 +87,7 @@
                 <p id="question-text" class="text-3xl md:text-4xl font-extrabold"></p>
             </div>
 
+            <!-- Khối trả lời trắc nghiệm (ẩn khi là câu tự luận) -->
             <div id="answer-grid" class="grid grid-cols-2 gap-4 w-full h-[50%]">
                 <button id="btn-a" onclick="handleAnswer('a', this)" class="answer-btn bg-red-600 hover:bg-red-700">
                     A. <span class="ml-2" id="option-a"></span>
@@ -99,6 +100,16 @@
                 </button>
                 <button id="btn-d" onclick="handleAnswer('d', this)" class="answer-btn bg-green-600 hover:bg-green-700">
                     D. <span class="ml-2" id="option-d"></span>
+                </button>
+            </div>
+
+            <!-- Khối trả lời tự luận (hiện khi là câu tự luận) -->
+            <div id="open-answer-input" class="hidden w-full flex flex-col items-center h-[50%]">
+                <textarea id="open-text-area" rows="6" placeholder="Nhập câu trả lời chi tiết của bạn tại đây..."
+                    class="w-full p-4 border rounded-lg bg-gray-700 text-white resize-none mb-4 focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                <button onclick="handleOpenAnswer()"
+                    class="w-full py-3 bg-primary text-white font-bold rounded-lg hover:bg-indigo-600 transition duration-300 shadow-md">
+                    Gửi Câu Trả Lời (Tự Luận)
                 </button>
             </div>
         </div>
@@ -115,7 +126,7 @@
                 <span id="final-total" class="font-extrabold text-3xl text-primary">0</span>
             </p>
             <p id="submission-status" class="text-sm text-gray-500 mt-4">
-                Kết quả đang được gửi...
+                Kết quả đang được gửi... (Câu tự luận sẽ được chấm điểm sau.)
             </p>
             <button onclick="window.location.reload()" 
                     class="mt-6 bg-primary text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-600 transition duration-300 shadow-md">
@@ -149,112 +160,72 @@
             {
                 id: 1,
                 text: "Trong C++, kết quả của biểu thức `10 / 3` là gì nếu cả hai là số nguyên (`int`)?",
-                options: {
-                    a: "3.333...",
-                    b: "3",
-                    c: "4",
-                    d: "Lỗi biên dịch"
-                },
+                options: { a: "3.333...", b: "3", c: "4", d: "Lỗi biên dịch" },
                 answer: "\x22",
+                type: "mc"
             },
             {
                 id: 2,
                 text: "Toán tử nào được dùng để kiểm tra tính bằng nhau của hai giá trị trong C++?",
-                options: {
-                    a: "=",
-                    b: "==",
-                    c: "!=",
-                    d: "==="
-                },
+                options: { a: "=", b: "==", c: "!=", d: "===" },
                 answer: "\x22",
+                type: "mc"
             },
             {
                 id: 3,
                 text: "Đoạn mã sau in ra gì? `int a = 5; int b = 3; if (a > 3 && b < 5) { cout << \"YES\"; } else { cout << \"NO\"; }`",
-                options: {
-                    a: "YES",
-                    b: "NO",
-                    c: "Lỗi cú pháp",
-                    d: "In ra giá trị của a và b"
-                },
+                options: { a: "YES", b: "NO", c: "Lỗi cú pháp", d: "In ra giá trị của a và b" },
                 answer: "\x21",
+                type: "mc"
             },
             {
                 id: 4,
                 text: "Đâu là cú pháp đúng của câu lệnh `if` trong C++?",
-                options: {
-                    a: "if (x > 0) {}",
-                    b: "if x > 0 {}",
-                    c: "if x > 0 then {}",
-                    d: "if {x > 0}"
-                },
+                options: { a: "if (x > 0) {}", b: "if x > 0 {}", c: "if x > 0 then {}", d: "if {x > 0}" },
                 answer: "\x21",
+                type: "mc"
             },
             {
                 id: 5,
                 text: "Toán tử nào được sử dụng để tăng giá trị của một biến lên 1?",
-                options: {
-                    a: "-=",
-                    b: "++",
-                    c: "%",
-                    d: "||"
-                },
+                options: { a: "-=", b: "++", c: "%", d: "||" },
                 answer: "\x22",
+                type: "mc"
             },
             {
                 id: 6,
                 text: "Kết quả của biểu thức `17 % 5` (toán tử modulo) là gì?",
-                options: {
-                    a: "3",
-                    b: "2",
-                    c: "3.4",
-                    d: "17/5"
-                },
+                options: { a: "3", b: "2", c: "3.4", d: "17/5" },
                 answer: "\x22",
+                type: "mc"
             },
             {
                 id: 7,
                 text: "Đoạn code sau in ra gì? `int x = 7; if (x < 5 || x > 10) { cout << \"A\"; } else { cout << \"B\"; }`",
-                options: {
-                    a: "A",
-                    b: "B",
-                    c: "Cả A và B",
-                    d: "Không in ra gì"
-                },
+                options: { a: "A", b: "B", c: "Cả A và B", d: "Không in ra gì" },
                 answer: "\x22",
+                type: "mc"
             },
             {
                 id: 8,
                 text: "Toán tử gán kết hợp nào tương đương với `y = y - 4;`?",
-                options: {
-                    a: "y -= 4;",
-                    b: "y /= 4;",
-                    c: "y %= 4;",
-                    d: "y =- 4;"
-                },
+                options: { a: "y -= 4;", b: "y /= 4;", c: "y %= 4;", d: "y =- 4;" },
                 answer: "\x21",
+                type: "mc"
             },
             {
                 id: 9,
                 text: "Kết quả của biểu thức logic `!(true && false)` là gì?",
-                options: {
-                    a: "true",
-                    b: "false",
-                    c: "0",
-                    d: "1"
-                },
+                options: { a: "true", b: "false", c: "0", d: "1" },
                 answer: "\x21",
+                type: "mc"
             },
             {
                 id: 10,
-                text: "Đoạn code sau in ra gì? `int val = 10; if (val >= 10) { cout << \"X\"; } else if (val == 10) { cout << \"Y\"; }`",
-                options: {
-                    a: "X",
-                    b: "Y",
-                    c: "XY",
-                    d: "Lỗi"
-                },
-                answer: "\x21",
+                text: "Input: Số nguyên n không âm. (0 ≤ n ≤ 106). Output: Chuyển số ngày đã cho xem số năm (365 ngày/năm), số tuần (7 ngày/tuần), số ngày còn lại (Bỏ qua trường hợp năm nhuận). Hãy trình bày cách tính toán và sử dụng toán tử.",
+                options: null,
+                answer: "",
+                type: "open"
             }
         ];
 
@@ -288,6 +259,20 @@
             displayQuestion(currentQuestionIndex);
         }
 
+        function toggleAnswerInput(type) {
+            const grid = document.getElementById('answer-grid');
+            const openInput = document.getElementById('open-answer-input');
+            
+            if (type === 'open') {
+                grid.classList.add('hidden');
+                openInput.classList.remove('hidden');
+                document.getElementById('open-text-area').value = '';
+            } else {
+                grid.classList.remove('hidden');
+                openInput.classList.add('hidden');
+            }
+        }
+
         function displayQuestion(index) {
             if (index >= totalQuestions) {
                 finishQuiz();
@@ -295,20 +280,26 @@
             }
 
             const q = questionsData[index];
-
+            
             document.getElementById('question-counter').textContent = `Câu hỏi ${index + 1} / ${totalQuestions}`;
             document.getElementById('question-text').textContent = q.text;
 
-            document.getElementById('option-a').textContent = q.options.a;
-            document.getElementById('option-b').textContent = q.options.b;
-            document.getElementById('option-c').textContent = q.options.c;
-            
-            const btnD = document.getElementById('btn-d');
-            if (q.options.d) {
-                document.getElementById('option-d').textContent = q.options.d;
-                btnD.style.display = 'flex';
+            if (q.type === 'open') {
+                toggleAnswerInput('open');
             } else {
-                btnD.style.display = 'none';
+                toggleAnswerInput('mc');
+
+                document.getElementById('option-a').textContent = q.options.a;
+                document.getElementById('option-b').textContent = q.options.b;
+                document.getElementById('option-c').textContent = q.options.c;
+                
+                const btnD = document.getElementById('btn-d');
+                if (q.options.d) {
+                    document.getElementById('option-d').textContent = q.options.d;
+                    btnD.style.display = 'flex';
+                } else {
+                    btnD.style.display = 'none';
+                }
             }
 
             const buttons = document.querySelectorAll('#answer-grid button');
@@ -351,6 +342,25 @@
             }, NEXT_QUESTION_DELAY);
         }
 
+        function handleOpenAnswer() {
+            const q = questionsData[currentQuestionIndex];
+            const answerText = document.getElementById('open-text-area').value.trim();
+            
+            const buttons = document.querySelectorAll('#open-answer-input button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const statusText = answerText.length > 0 ? 'TỰ LUẬN - CHỜ CHẤM' : 'TỰ LUẬN - BỎ QUA';
+
+            detailResults += `Q${q.id} | Trạng thái: ${statusText} | Chi tiết trả lời: ${answerText}\n`;
+            
+            // Không tăng score vì là câu tự luận
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            }, NEXT_QUESTION_DELAY);
+        }
+
         function finishQuiz() {
             switchScreen('result-screen', ['start-screen', 'quiz-screen']);
 
@@ -363,7 +373,7 @@
 
             const formData = new URLSearchParams();
             formData.append(ENTRY_NAME_ID, userName);
-            formData.append(ENTRY_SCORE_ID, `${score}/${totalQuestions}`); 
+            formData.append(ENTRY_SCORE_ID, `${score}/${totalQuestions} (Tự luận chưa chấm)`); 
             formData.append(ENTRY_DETAIL_ID, detailResults); 
 
             fetch(GOOGLE_FORM_ACTION_URL, {
@@ -373,7 +383,7 @@
             })
             .then(() => {
                 console.log('Dữ liệu đã được gửi thành công đến Google Form.');
-                statusElement.textContent = "Kết quả đã được ghi lại thành công!";
+                statusElement.textContent = "Kết quả đã được ghi lại thành công! (Tự luận chờ chấm)";
                 statusElement.classList.add('text-green-600');
             })
             .catch(error => {
@@ -385,6 +395,7 @@
         
         window.startQuiz = startQuiz;
         window.handleAnswer = handleAnswer;
+        window.handleOpenAnswer = handleOpenAnswer;
 
     </script>
 </body>
